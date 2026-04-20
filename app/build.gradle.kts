@@ -65,11 +65,3 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
-
-
-val copyDebugApkToApkFolder by tasks.registering(org.gradle.api.tasks.Copy::class) {
-    dependsOn("assembleDebug")
-    from(layout.buildDirectory.dir("outputs/apk/debug"))
-    include("*.apk")
-    into(rootProject.layout.projectDirectory.dir("APK"))
-}

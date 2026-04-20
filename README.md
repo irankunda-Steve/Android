@@ -25,23 +25,3 @@ Audin is a Kotlin-based Android voice recorder app with practical everyday featu
 ## CI
 
 GitHub Actions workflow is available at `.github/workflows/android.yml` and will run build + tests on pushes and PRs.
-
-
-## Download APK from CI
-
-After a successful GitHub Actions run, open the run summary and download the `audin-debug-apk` artifact.
-
-Path uploaded by CI: `APK/*.apk`.
-
-
-## APK folder for phone install
-
-After running a debug build, APK files are copied to the repository root `APK/` folder.
-
-Build command:
-
-```bash
-./gradlew :app:assembleDebug :app:copyDebugApkToApkFolder
-```
-
-Then install the APK from `APK/` on your phone.
