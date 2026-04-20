@@ -7,7 +7,7 @@
         android:allowBackup="true"
         android:icon="@android:drawable/ic_btn_speak_now"
         android:label="Audin"
-        android:roundIcon="@android:drawable/ic_btn_speak_now_round"
+        android:roundIcon="@android:drawable/ic_btn_speak_now"
         android:supportsRtl="true"
         android:theme="@style/Theme.Audin">
         <activity
