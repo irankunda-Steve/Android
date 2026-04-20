@@ -5,9 +5,6 @@ on:
     branches: ["**"]
   pull_request:
 
-permissions:
-  contents: write
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -35,37 +32,13 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build release APK
-        run: ./gradlew --no-daemon :app:assembleRelease :app:copyReleaseApkToApkFolder
+        run: ./gradlew --no-daemon :app:assembleRelease
 
       - name: Run unit tests
         run: ./gradlew --no-daemon test
 
-      - name: Ensure APK folder exists
-        run: mkdir -p APK
-
-      - name: Show generated APK files
-        run: |
-          echo "Generated APK files:"
-          find app/build/outputs/apk APK -type f -name "*.apk" -print
-
-      - name: Upload release APK artifact
-        if: always()
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: audin-release-apk
-          path: APK/*-release.apk
-          if-no-files-found: error
-          retention-days: 14
-
-      - name: Create/Update GitHub release with APK
-        if: github.event_name == "push" && github.ref == "refs/heads/main"
-        uses: ncipollo/release-action@v1
-        with:
-          tag: audin-latest
-          name: Audin Latest APK
-          body: Latest release APK build from CI.
-          artifacts: APK/*-release.apk
-          artifactErrorsFailBuild: true
-          allowUpdates: true
-          removeArtifacts: true
-          prerelease: true
+          name: release-apk
+          path: app/build/outputs/apk/release/

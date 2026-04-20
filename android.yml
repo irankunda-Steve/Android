@@ -1,0 +1,33 @@
+# This file defines the build configuration for the Android project.
+
+android {
+    compileSdkVersion 30
+
+    defaultConfig {
+        applicationId "com.example.myapp"
+        minSdkVersion 21
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        debug { // Changed from release to debug
+            applicationIdSuffix ".debug"
+            versionNameSuffix "-debug"
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+// Building the debug APK instead of release
+// Original line 'assembleRelease' changed to 'assembleDebug'
+
+tasks.whenTaskAdded { task ->
+    if (task.name == 'assembleRelease') { // Updated...
+        task.name = 'assembleDebug'
+    }
+}

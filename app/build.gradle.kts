@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.audin.recorder"
-        minSdk = 21
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0.0"
@@ -21,7 +21,6 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
-            signingConfig = signingConfigs.getByName("debug")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -65,12 +64,4 @@ dependencies {
 
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
-}
-
-
-val copyReleaseApkToApkFolder by tasks.registering(org.gradle.api.tasks.Copy::class) {
-    dependsOn("assembleRelease")
-    from(layout.buildDirectory.dir("outputs/apk/release"))
-    include("*-release.apk")
-    into(rootProject.layout.projectDirectory.dir("APK"))
 }

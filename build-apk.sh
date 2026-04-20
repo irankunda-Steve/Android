@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-./gradlew --no-daemon :app:assembleRelease :app:copyReleaseApkToApkFolder
+./gradlew --no-daemon :app:assembleDebug :app:copyDebugApkToApkFolder
 
 echo "APK generated in:"
-find APK -type f -name "*-release.apk" -print
+find APK -type f -name "*.apk" -print
