@@ -1,0 +1,96 @@
+name: Android CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.14.3
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Generate release keystore
+        run: |
+          mkdir -p signing
+          keytool -genkeypair -v -storetype PKCS12 \
+            -keystore signing/audin-release.keystore \
+            -alias "$AUDIN_KEY_ALIAS" \
+            -keyalg RSA -keysize 2048 -validity 36500 \
+            -storepass "$AUDIN_STORE_PASSWORD" \
+            -keypass "$AUDIN_KEY_PASSWORD" \
+            -dname "CN=Audin, OU=Mobile, O=Audin, L=Kigali, ST=Kigali, C=RW"
+        env:
+          AUDIN_STORE_PASSWORD: ${{ secrets.AUDIN_STORE_PASSWORD || 'audin123' }}
+          AUDIN_KEY_ALIAS: ${{ secrets.AUDIN_KEY_ALIAS || 'audin' }}
+          AUDIN_KEY_PASSWORD: ${{ secrets.AUDIN_KEY_PASSWORD || 'audin123' }}
+
+      - name: Build release APK
+        run: ./gradlew --no-daemon :app:assembleRelease :app:copyReleaseApkToApkFolder :app:assembleDebug :app:copyDebugApkToApkFolder
+
+      - name: Run unit tests
+        run: ./gradlew --no-daemon test
+
+      - name: Ensure APK folder exists
+        run: mkdir -p APK
+
+      - name: Show generated APK files
+        run: |
+          echo "Generated APK files:"
+          find app/build/outputs/apk APK -type f -name "*.apk" -print
+
+
+      - name: Upload debug APK artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: audin-debug-apk
+          path: APK/*-debug.apk
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload release APK artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: audin-release-apk
+          path: APK/*-release.apk
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Create/Update GitHub release with APK
+        if: github.event_name == "push" && github.ref == "refs/heads/main"
+        uses: ncipollo/release-action@v1
+        with:
+          tag: audin-latest
+          name: Audin Latest APK
+          body: Latest release APK build from CI.
+          artifacts: APK/*-release.apk
+          artifactErrorsFailBuild: true
+          allowUpdates: true
+          removeArtifacts: true
+          prerelease: true
